@@ -1,0 +1,6 @@
+{
+  "watch": ["src"],
+  "ext": "ts,mts",
+  "ignore": ["src/**/*.spec.ts"],
+  "exec": "ts-node-esm src/view/Controller.mts"
+}
