@@ -7,13 +7,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model noticia {
+  id        Int       @id @default(autoincrement())
+  titulo    String    @db.VarChar(40)
+  descricao String    @db.Text
+  urlImage String     @db.LongText
+  createdAt DateTime? @default(now())
+  updateAt  DateTime? @default(now())
+  usuarioFk Int?
+  tag       tag[]     @relation("noticiatotag")
+
+  @@index([usuarioFk], map: "Noticia_usuarioFk_fkey")
+}
+
+model produto {
+  id            BigInt   @id @default(autoincrement())
+  nomeReal      String   @db.VarChar(50)
+  nomeProtoTipo String   @db.VarChar(30)
+  descricao     String   @db.Text
+  createdAt     DateTime @default(now())
+  updateAt      DateTime @default(now())
+  lancamento    DateTime
+  usuarioFk     Int
+  usuario       usuario  @relation(fields: [usuarioFk], references: [id], map: "Produto_usuarioFk_fkey")
+
+  @@index([usuarioFk], map: "Produto_usuarioFk_fkey")
+}
+
+model tag {
+  id           Int            @id @default(autoincrement())
+  nome         String         @unique
+  produtototag produtototag[]
+  noticia      noticia[]      @relation("noticiatotag")
+}
+
 model usuario {
   id           Int                  @id @default(autoincrement())
   nome         String               @db.VarChar(80)
   senha        String               @db.Text
   atividade    Boolean              @default(true)
-  salt         String               @db.LongText
+  salt         String               @unique
   tipo_usuario usuario_tipo_usuario @default(COMMON)
+  produto      produto[]
+}
+
+model produtototag {
+  A   BigInt
+  B   Int
+  tag tag    @relation(fields: [B], references: [id], onDelete: Cascade, map: "_ProdutoToTag_B_fkey")
+
+  @@unique([A, B], map: "_produtototag_AB_unique")
+  @@index([B], map: "_produtototag_B_index")
+  @@map("_produtototag")
 }
 
 enum usuario_tipo_usuario {

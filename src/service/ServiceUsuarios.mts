@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 import type { usuario } from "@prisma/client"
 import { hash } from "crypto"
-const ormClient = new PrismaClient()
+export const ormClient = new PrismaClient()
 const hashAlg = "md5"
 export async function novoUsuario(usuarioModel: usuario)  {
     try {
@@ -28,16 +28,22 @@ export async function novoUsuario(usuarioModel: usuario)  {
 }
 export async function login(usuarioModel: usuario) {
     try {
-        const salt = hash(hashAlg, usuarioModel.senha)
-        const userModelQuery = ormClient
+        const salt = hash(hashAlg, usuarioModel.senha + usuarioModel.nome)
+        usuarioModel.salt = salt
+        console.log(usuarioModel)
+        const query = await ormClient
             .usuario
             .findFirst({
-                where: {
-                    AND: {
-                        nome: usuarioModel.nome,
-                        senha: usuarioModel.senha,
-                        salt: usuarioModel.salt
-                    }
+                where : {
+                    AND : {
+                        nome : usuarioModel.nome,
+                        senha : usuarioModel.senha
+                    },
+                },
+                select : {
+                    salt : true,
+                    nome : true,
+                    tipo_usuario : true,
                 }
             })
             .then((queryResponse) => {
@@ -49,7 +55,7 @@ export async function login(usuarioModel: usuario) {
             .catch(function () {
                 console.error("Não foi possivel fazer login")
             })
-        return userModelQuery
+        return query
 
     } finally {
         ormClient.$disconnect()
@@ -62,12 +68,28 @@ export async function findAllUsuarios() {
             .findMany({
                 where: {
                     atividade: true
+                },
+                select : {
+                    nome : true,
+                    senha : true,
+                    tipo_usuario : true,
+                    salt : true,
+                    produto : true,
+                    id : true
                 }
             })
         return list
     } finally {
         await ormClient.$disconnect()
     }
+}
+export async function update(params : usuario) {
+    await ormClient.usuario.update({
+        where : {
+            salt : params.salt
+        },
+        data : params
+    })
 }
 export async function deleteLogicUser(user: number) {
     try {
@@ -87,4 +109,25 @@ export async function deleteLogicUser(user: number) {
     } finally {
         await ormClient.$disconnect()
     }
+}
+export async function deleteFisicUser(saltUSer: string) {
+    const user  = await ormClient
+        .usuario
+        .findFirst({
+            where : {
+                salt : saltUSer
+            }
+        })
+    await ormClient
+        .usuario
+        .delete(
+            {
+                where : {
+                    id : user?.id
+                }
+            }
+        )
+        .finally(
+            ormClient.$disconnect
+        )
 }

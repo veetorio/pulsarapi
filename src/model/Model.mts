@@ -1,12 +1,10 @@
-// import { usuario } from "@prisma/client"
-// export default class UsuarioModel {
-//    id : number
+// export default interface UsuarioModel {
 //    nome: string
+//    senha : string
 //    salt: string 
+//    atividade : boolean 
+//    tipo
+//    produtos : any[]
+//    noticias : any[]
 
-//   public constructor(usuario : usuario) {
-//     this.id = usuario.id;
-//     this.nome = usuario.nome;
-//     this.salt = usuario.salt;
-//   }
 // }
