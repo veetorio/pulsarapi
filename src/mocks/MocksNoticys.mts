@@ -7,7 +7,7 @@ const funcMock = (): Prisma.noticiaCreateManyInput => {
         descricao: faker.lorem.paragraph(2),
         createdAt: new Date(),
         updateAt: new Date(),
-        urlImage : '',
+        urlImage : faker.image.urlPicsumPhotos({ width : 100 , height : 100}),
         usuarioFk : 50, // <<< aqui, direto
     }
 }
