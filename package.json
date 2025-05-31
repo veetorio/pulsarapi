@@ -8,7 +8,8 @@
     "db-up": "npx prisma migrate dev",
     "db-create": "npx prisma db pull",
     "db-reset": "npx prisma migrate reset",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "build": "npx prisma migrate dev | npx prisma db pull | nodemon"
   },
   "keywords": [],
   "author": "",
